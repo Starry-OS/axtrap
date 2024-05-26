@@ -8,6 +8,7 @@ edition = "2021"
 [features]
 default = []
 monolithic = ["dep:linux_syscall_api"]
+microkernel = ["dep:micro_kernel_syscall_api"]
 irq = []
 preempt = ["axtask/preempt", "percpu/preempt", "kernel_guard/preempt"]
 
@@ -16,6 +17,7 @@ axlog = { git = "https://github.com/Starry-OS/axlog.git" }
 cfg-if = "1.0"
 log = "0.4"
 linux_syscall_api = { git = "https://github.com/Starry-OS/linux_syscall_api.git", optional = true }
+micro_kernel_syscall_api = { git = "https://github.com/Starry-OS/microkernel_syscall_api.git", optional = true}
 handler_table = { git = "https://github.com/Starry-OS/handler_table.git" }
 lazy_init = { git = "https://github.com/Starry-OS/lazy_init.git" }
 axhal = { git = "https://github.com/Starry-OS/axhal.git" }

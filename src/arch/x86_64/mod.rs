@@ -21,6 +21,7 @@ pub fn init_interrupt() {
 
 #[no_mangle]
 fn x86_trap_handler(tf: &mut TrapFrame) {
+    axhal::arch::enable_irqs();
     match tf.vector as u8 {
         PAGE_FAULT_VECTOR => {
             if tf.is_user() {

@@ -48,6 +48,7 @@ pub(super) fn init_syscall() {
 
 #[no_mangle]
 fn x86_syscall_handler(tf: &mut TrapFrame) {
+    axhal::arch::enable_irqs();
     tf.rax = crate::trap::handle_syscall(tf.get_syscall_num(), tf.get_syscall_args()) as u64;
     #[cfg(feature = "monolithic")]
     if tf.is_user() {

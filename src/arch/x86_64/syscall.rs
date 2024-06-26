@@ -49,7 +49,15 @@ pub(super) fn init_syscall() {
 #[no_mangle]
 fn x86_syscall_handler(tf: &mut TrapFrame) {
     axhal::arch::enable_irqs();
-    tf.rax = crate::trap::handle_syscall(tf.get_syscall_num(), tf.get_syscall_args()) as u64;
+    let result = crate::trap::handle_syscall(tf.get_syscall_num(), tf.get_syscall_args());
+    if -result == linux_syscall_api::SyscallError::ERESTART as isize {
+        axlog::error!("rewind pc");
+        // Restart the syscall
+        tf.rewind_pc();
+    } else {
+        tf.rax = result as u64;
+    }
+    axlog::info!("return to:{:X} sp: {:X}", tf.rip, tf.rsp);
     #[cfg(feature = "monolithic")]
     if tf.is_user() {
         crate::trap::handle_signals();

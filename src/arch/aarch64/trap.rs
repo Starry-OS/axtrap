@@ -126,7 +126,12 @@ fn handle_el0t_64_sync_exception(tf: &mut TrapFrame) {
                 tf.r[8],
                 [tf.r[0], tf.r[1], tf.r[2], tf.r[3], tf.r[4], tf.r[5]],
             );
-            tf.r[0] = result as usize;
+            if result.abs() == linux_syscall_api::SyscallError::ERESTART as isize {
+                // Restart the syscall
+                tf.rewind_pc();
+            } else {
+                tf.r[0] = result as usize;
+            }
         }
         Some(ESR_EL1::EC::Value::DataAbortLowerEL) => {
             let far = FAR_EL1.get() as usize;

@@ -58,8 +58,7 @@ pub fn riscv_trap_handler(tf: &mut TrapFrame, from_user: bool) {
                     tf.regs.a0, tf.regs.a1, tf.regs.a2, tf.regs.a3, tf.regs.a4, tf.regs.a5,
                 ],
             );
-            let result = crate::trap::handle_syscall(tf.get_syscall_num(), tf.get_syscall_args());
-            if result.abs() == linux_syscall_api::SyscallError::ERESTART as isize {
+            if -result == linux_syscall_api::SyscallError::ERESTART as isize {
                 // Restart the syscall
                 tf.rewind_pc();
             } else {

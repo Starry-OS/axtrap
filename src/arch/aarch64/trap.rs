@@ -126,12 +126,19 @@ fn handle_el0t_64_sync_exception(tf: &mut TrapFrame) {
                 tf.r[8],
                 [tf.r[0], tf.r[1], tf.r[2], tf.r[3], tf.r[4], tf.r[5]],
             );
-            if result.abs() == linux_syscall_api::SyscallError::ERESTART as isize {
+            if -result == linux_syscall_api::SyscallError::ERESTART as isize {
                 // Restart the syscall
                 tf.rewind_pc();
             } else {
                 tf.r[0] = result as usize;
             }
+            axlog::info!(
+                "Unhandled synchronous exception @ {:#x}: ESR={:#x} (EC {:#08b}, ISS {:#x})",
+                tf.elr,
+                esr.get(),
+                esr.read(ESR_EL1::EC),
+                esr.read(ESR_EL1::ISS),
+            );
         }
         Some(ESR_EL1::EC::Value::DataAbortLowerEL) => {
             let far = FAR_EL1.get() as usize;

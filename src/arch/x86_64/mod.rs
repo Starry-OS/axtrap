@@ -21,14 +21,17 @@ pub fn init_interrupt() {
 
 #[no_mangle]
 fn x86_trap_handler(tf: &mut TrapFrame) {
+    // Read cr2 before enable_irqs
+    // Otherwise, the cr2 may be changed after the time interrupt is handled
+    let cr2 = unsafe { cr2() };
     axhal::arch::enable_irqs();
     match tf.vector as u8 {
         PAGE_FAULT_VECTOR => {
             if tf.is_user() {
-                axlog::info!(
+                axlog::debug!(
                     "User #PF @ {:#x}, fault_vaddr={:#x}, error_code={:#x}",
                     tf.rip,
-                    unsafe { cr2() },
+                    cr2,
                     tf.error_code,
                 );
                 #[cfg(feature = "monolithic")]
@@ -52,15 +55,12 @@ fn x86_trap_handler(tf: &mut TrapFrame) {
                         map_flags |= MappingFlags::EXECUTE;
                     }
                     axlog::debug!("error_code: {:?}", tf.error_code);
-                    crate::trap::handle_page_fault(unsafe { cr2() }.into(), map_flags);
+                    crate::trap::handle_page_fault(cr2.into(), map_flags);
                 }
             } else {
                 panic!(
                     "Kernel #PF @ {:#x}, fault_vaddr={:#x}, error_code={:#x}:\n{:#x?}",
-                    tf.rip,
-                    unsafe { cr2() },
-                    tf.error_code,
-                    tf,
+                    tf.rip, cr2, tf.error_code, tf,
                 );
             }
         }

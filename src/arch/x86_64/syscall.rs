@@ -57,7 +57,7 @@ fn x86_syscall_handler(tf: &mut TrapFrame) {
     } else {
         tf.rax = result as u64;
     }
-    axlog::info!("return to:{:X} sp: {:X}", tf.rip, tf.rsp);
+
     #[cfg(feature = "monolithic")]
     if tf.is_user() {
         crate::trap::handle_signals();

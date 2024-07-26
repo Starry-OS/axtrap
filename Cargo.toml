@@ -28,7 +28,7 @@ percpu = { git = "https://github.com/Starry-OS/percpu.git" }
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 x86 = "0.52"
-x86_64 = "0.14"
+x86_64 = "0.15"
 
 [target.'cfg(any(target_arch = "riscv32", target_arch = "riscv64"))'.dependencies]
 riscv = "0.10"

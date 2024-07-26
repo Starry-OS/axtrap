@@ -132,23 +132,13 @@ fn handle_el0t_64_sync_exception(tf: &mut TrapFrame) {
             } else {
                 tf.r[0] = result as usize;
             }
-            axlog::info!(
-                "Unhandled synchronous exception @ {:#x}: ESR={:#x} (EC {:#08b}, ISS {:#x})",
-                tf.elr,
-                esr.get(),
-                esr.read(ESR_EL1::EC),
-                esr.read(ESR_EL1::ISS),
-            );
         }
         Some(ESR_EL1::EC::Value::DataAbortLowerEL) => {
             let far = FAR_EL1.get() as usize;
-            enable_irqs();
             super::mem_fault::el0_da(far, esr.get(), tf);
         }
         Some(ESR_EL1::EC::Value::InstrAbortLowerEL) => {
             let far = FAR_EL1.get() as usize;
-            enable_irqs();
-            log::info!("data abort page fault at addr {:#x?}", far);
             super::mem_fault::el0_ia(far, esr.get(), tf);
         }
         _ => {

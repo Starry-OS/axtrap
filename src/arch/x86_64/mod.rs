@@ -24,7 +24,7 @@ fn x86_trap_handler(tf: &mut TrapFrame) {
     // Read cr2 before enable_irqs
     // Otherwise, the cr2 may be changed after the time interrupt is handled
     let cr2 = unsafe { cr2() };
-    axhal::arch::enable_irqs();
+
     match tf.vector as u8 {
         PAGE_FAULT_VECTOR => {
             if tf.is_user() {

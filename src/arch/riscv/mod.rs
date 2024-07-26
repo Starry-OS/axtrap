@@ -46,15 +46,14 @@ pub fn riscv_trap_handler(tf: &mut TrapFrame, from_user: bool) {
 
     #[cfg(feature = "monolithic")]
     linux_syscall_api::trap::record_trap(scause.code());
-    if from_user {
-        axhal::arch::enable_irqs();
-    }
+
     match scause.cause() {
         Trap::Exception(E::Breakpoint) => handle_breakpoint(&mut tf.sepc),
         Trap::Interrupt(_) => handle_irq(scause.bits(), from_user),
 
         #[cfg(feature = "monolithic")]
         Trap::Exception(E::UserEnvCall) => {
+            axhal::arch::enable_irqs();
             tf.sepc += 4;
             let result = handle_syscall(
                 tf.regs.a7,
